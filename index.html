@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sniper Adventure</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#9edfff;
+    overflow:hidden;
+    user-select:none;
+}
+
+#top{
+    height:68px;
+    background:linear-gradient(180deg,#244d35,#163a27);
+    color:white;
+    display:flex;
+    align-items:center;
+    padding:0 22px;
+    gap:18px;
+    position:relative;
+    z-index:10;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:900;
+    margin-right:auto;
+}
+
+.stats{
+    display:flex;
+    gap:18px;
+    font-weight:bold;
+}
+
+#game{
+    position:relative;
+    height:calc(100vh - 68px);
+    overflow:hidden;
+    cursor:none;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #71cfff 0%,
+            #a9e6ff 52%,
+            #77c957 52%,
+            #4da83d 100%
+        );
+}
+
+/* SUN */
+
+#sun{
+    position:absolute;
+    width:95px;
+    height:95px;
+    border-radius:50%;
+    background:#ffe477;
+    right:8%;
+    top:7%;
+    box-shadow:0 0 45px #fff3a0;
+}
+
+/* CLOUDS */
+
+.cloud{
+    position:absolute;
+    width:130px;
+    height:40px;
+    background:white;
+    border-radius:40px;
+    opacity:.8;
+    animation:cloudMove 35s linear infinite;
+}
+
+.cloud:before,
+.cloud:after{
+    content:"";
+    position:absolute;
+    background:white;
+    border-radius:50%;
+}
+
+.cloud:before{
+    width:55px;
+    height:55px;
+    left:20px;
+    top:-25px;
+}
+
+.cloud:after{
+    width:65px;
+    height:65px;
+    right:15px;
+    top:-32px;
+}
+
+.c1{top:12%;left:-150px}
+.c2{top:25%;left:-350px;animation-delay:10s;transform:scale(.75)}
+.c3{top:8%;left:-500px;animation-delay:20s;transform:scale(1.2)}
+
+@keyframes cloudMove{
+    from{left:-180px}
+    to{left:110%}
+}
+
+/* HILLS */
+
+.hill{
+    position:absolute;
+    bottom:35%;
+    width:500px;
+    height:220px;
+    border-radius:50% 50% 0 0;
+    background:#5aaf4d;
+}
+
+.h1{left:-100px}
+.h2{left:30%;background:#4c9e45}
+.h3{right:-160px;background:#63b854}
+
+/* TREES */
+
+.tree{
+    position:absolute;
+    bottom:31%;
+    width:25px;
+    height:130px;
+    background:#754a29;
+    z-index:2;
+}
+
+.tree:before{
+    content:"";
+    position:absolute;
+    width:110px;
+    height:110px;
+    left:-42px;
+    top:-80px;
+    background:#25843b;
+    border-radius:50%;
+    box-shadow:
+        40px -20px 0 #2e9643,
+        70px 15px 0 #247738;
+}
+
+.t1{left:8%}
+.t2{left:78%;transform:scale(1.2)}
+.t3{left:58%;transform:scale(.75)}
+
+/* GROUND */
+
+#ground{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:33%;
+    background:
+        repeating-linear-gradient(
+            170deg,
+            #4a9e39 0,
+            #4a9e39 12px,
+            #55a942 12px,
+            #55a942 25px
+        );
+}
+
+/* TARGET */
+
+#target{
+    position:absolute;
+    width:80px;
+    height:105px;
+    display:none;
+    transform:translate(-50%,-50%);
+    z-index:5;
+    transition:left .25s ease,top .25s ease;
+}
+
+.head{
+    width:40px;
+    height:40px;
+    margin:auto;
+    background:#ffd0a5;
+    border:3px solid #8a5837;
+    border-radius:50%;
+    position:relative;
+}
+
+.head:before,
+.head:after{
+    content:"";
+    position:absolute;
+    width:6px;
+    height:6px;
+    background:#333;
+    border-radius:50%;
+    top:13px;
+}
+
+.head:before{left:9px}
+.head:after{right:9px}
+
+.body{
+    width:58px;
+    height:58px;
+    margin:auto;
+    background:#ff6b7a;
+    border-radius:16px 16px 8px 8px;
+    border:3px solid #a83b4c;
+}
+
+.target-bar{
+    position:absolute;
+    top:-15px;
+    left:10px;
+    width:60px;
+    height:7px;
+    background:#333;
+    border-radius:5px;
+}
+
+#targetHP{
+    width:100%;
+    height:100%;
+    background:#39d353;
+    border-radius:5px;
+}
+
+/* CROSSHAIR */
+
+#crosshair{
+    position:absolute;
+    width:75px;
+    height:75px;
+    border:3px solid #fff;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+    display:none;
+    z-index:20;
+    box-shadow:0 0 5px #222;
+}
+
+#crosshair:before,
+#crosshair:after{
+    content:"";
+    position:absolute;
+    background:#fff;
+}
+
+#crosshair:before{
+    width:3px;
+    height:100px;
+    left:33px;
+    top:-15px;
+}
+
+#crosshair:after{
+    height:3px;
+    width:100px;
+    left:-15px;
+    top:33px;
+}
+
+/* RIFLE */
+
+#rifle{
+    position:absolute;
+    bottom:-20px;
+    left:50%;
+    transform:translateX(-50%);
+    width:330px;
+    height:110px;
+    z-index:8;
+    pointer-events:none;
+}
+
+.barrel{
+    position:absolute;
+    width:260px;
+    height:25px;
+    background:#29342e;
+    left:25px;
+    top:35px;
+    border-radius:10px;
+}
+
+.stock{
+    position:absolute;
+    width:110px;
+    height:55px;
+    background:#8b542d;
+    left:0;
+    top:45px;
+    transform:rotate(-8deg);
+    border-radius:12px;
+}
+
+.scope{
+    position:absolute;
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    border:12px solid #26312b;
+    right:25px;
+    top:5px;
+}
+
+/* FLASH */
+
+#flash{
+    position:absolute;
+    width:100px;
+    height:100px;
+    border-radius:50%;
+    background:#fff49c;
+    box-shadow:0 0 45px #fff;
+    left:50%;
+    bottom:120px;
+    transform:translateX(-50%);
+    display:none;
+    z-index:9;
+}
+
+/* MESSAGE */
+
+#message{
+    position:absolute;
+    top:25px;
+    left:50%;
+    transform:translateX(-50%);
+    padding:12px 25px;
+    border-radius:15px;
+    background:#173c26dd;
+    color:white;
+    font-weight:bold;
+    font-size:20px;
+    z-index:15;
+    display:none;
+}
+
+/* START */
+
+#start,
+#over{
+    position:fixed;
+    inset:0;
+    background:#0007;
+    z-index:50;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.panel{
+    width:90%;
+    max-width:550px;
+    padding:40px;
+    border-radius:25px;
+    background:linear-gradient(145deg,#ffffff,#e7fff0);
+    color:#173321;
+    text-align:center;
+    box-shadow:0 20px 60px #0006;
+}
+
+.panel h1{
+    font-size:48px;
+    color:#237c3b;
+    margin:0 0 10px;
+}
+
+.panel p{
+    font-size:18px;
+    line-height:1.6;
+}
+
+.play{
+    padding:15px 40px;
+    background:#35b957;
+    color:white;
+    border-radius:12px;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.play:hover{
+    background:#249a45;
+}
+
+#over{
+    display:none;
+}
+
+/* FLOATING POINTS */
+
+.float{
+    position:absolute;
+    color:#fff;
+    font-weight:900;
+    font-size:24px;
+    pointer-events:none;
+    animation:floatUp 1s ease forwards;
+    z-index:30;
+    text-shadow:0 2px 3px #333;
+}
+
+@keyframes floatUp{
+    from{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+    to{
+        opacity:0;
+        transform:translateY(-80px) scale(1.4);
+    }
+}
+
+@media(max-width:700px){
+    .stats{
+        gap:7px;
+        font-size:12px;
+    }
+
+    .logo{
+        font-size:17px;
+    }
+
+    .panel h1{
+        font-size:35px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header id="top">
+
+    <div class="logo">
+        🎯 SNIPER ADVENTURE
+    </div>
+
+    <div class="stats">
+        ❤️ <span id="lives">3</span>
+        ⭐ LV <span id="level">1</span>
+        🪙 <span id="coins">0</span>
+        🏆 <span id="score">0</span>
+    </div>
+
+</header>
+
+
+<div id="start">
+
+    <div class="panel">
+
+        <h1>🎯 Sniper Adventure</h1>
+
+        <p>
+            Welcome to the friendly shooting range!
+        </p>
+
+        <p>
+            🖱️ Move your mouse to aim<br>
+            🎯 Click the targets<br>
+            🪙 Collect coins<br>
+            ⭐ Reach higher levels
+        </p>
+
+        <button class="play" onclick="startGame()">
+            START ADVENTURE
+        </button>
+
+    </div>
+
+</div>
+
+
+<div id="game">
+
+    <div id="sun"></div>
+
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+    <div class="cloud c3"></div>
+
+    <div class="hill h1"></div>
+    <div class="hill h2"></div>
+    <div class="hill h3"></div>
+
+    <div class="tree t1"></div>
+    <div class="tree t2"></div>
+    <div class="tree t3"></div>
+
+    <div id="ground"></div>
+
+    <div id="message"></div>
+
+    <div id="target">
+
+        <div class="target-bar">
+            <div id="targetHP"></div>
+        </div>
+
+        <div class="head"></div>
+        <div class="body"></div>
+
+    </div>
+
+    <div id="crosshair"></div>
+
+    <div id="flash"></div>
+
+    <div id="rifle">
+
+        <div class="stock"></div>
+        <div class="barrel"></div>
+        <div class="scope"></div>
+
+    </div>
+
+</div>
+
+
+<div id="over">
+
+    <div class="panel">
+
+        <h1>🎉 Great Game!</h1>
+
+        <p>
+            You completed your adventure.
+        </p>
+
+        <p>
+            🏆 Score:
+            <b id="finalScore">0</b>
+        </p>
+
+        <p>
+            ⭐ Level:
+            <b id="finalLevel">1</b>
+        </p>
+
+        <p>
+            🪙 Coins:
+            <b id="finalCoins">0</b>
+        </p>
+
+        <button class="play" onclick="location.reload()">
+            PLAY AGAIN
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let playing=false;
+
+let score=0;
+let coins=0;
+let lives=3;
+let level=1;
+
+let hp=100;
+
+let targetTimer;
+let moveTimer;
+
+
+/* START */
+
+function startGame(){
+
+    document.getElementById("start").style.display="none";
+
+    playing=true;
+
+    score=0;
+    coins=0;
+    lives=3;
+    level=1;
+
+    update();
+
+    spawnTarget();
+
+}
+
+
+/* TARGET */
+
+function spawnTarget(){
+
+    if(!playing) return;
+
+    clearTimeout(targetTimer);
+    clearInterval(moveTimer);
+
+    hp=100;
+
+    document.getElementById("targetHP").style.width="100%";
+
+    const width=document.getElementById("game").clientWidth;
+
+    const height=document.getElementById("game").clientHeight;
+
+    const x=100+Math.random()*(width-200);
+
+    const y=120+Math.random()*(height-330);
+
+    const t=document.getElementById("target");
+
+    t.style.left=x+"px";
+
+    t.style.top=y+"px";
+
+    t.style.display="block";
+
+
+    /*
+       Target movement gets
+       faster at higher levels.
+    */
+
+    let speed=Math.max(
+        350,
+        1500-level*100
+    );
+
+    moveTimer=setInterval(moveTarget,speed);
+
+
+    /*
+       Target escapes after
+       a limited amount of time.
+    */
+
+    targetTimer=setTimeout(()=>{
+
+        if(!playing)return;
+
+        lives--;
+
+        floatingText(
+            x,
+            y,
+            "Target escaped!"
+        );
+
+        update();
+
+        if(lives<=0){
+
+            gameOver();
+
+            return;
+
+        }
+
+        spawnTarget();
+
+    },Math.max(
+        1800,
+        5000-level*250
+    ));
+
+}
+
+
+/* MOVE TARGET */
+
+function moveTarget(){
+
+    const game=document.getElementById("game");
+
+    const width=game.clientWidth;
+
+    const height=game.clientHeight;
+
+    const x=80+Math.random()*(width-160);
+
+    const y=110+Math.random()*(height-330);
+
+    const t=document.getElementById("target");
+
+    t.style.left=x+"px";
+
+    t.style.top=y+"px";
+
+}
+
+
+/* AIM */
+
+document.getElementById("game")
+.addEventListener("mousemove",e=>{
+
+    if(!playing)return;
+
+    const game=document
+        .getElementById("game")
+        .getBoundingClientRect();
+
+    const cross=document
+        .getElementById("crosshair");
+
+    cross.style.left=
+        (e.clientX-game.left)+"px";
+
+    cross.style.top=
+        (e.clientY-game.top)+"px";
+
+    cross.style.display="block";
+
+});
+
+
+/* SHOOT */
+
+document.getElementById("game")
+.addEventListener("click",e=>{
+
+    if(!playing)return;
+
+    if(
+        e.target.closest("#rifle") ||
+        e.target.closest("#target")
+    ){
+
+        shoot(e);
+
+    }
+    else{
+
+        miss();
+
+    }
+
+});
+
+
+function shoot(e){
+
+    const t=document
+        .getElementById("target")
+        .getBoundingClientRect();
+
+    const hit=
+
+        e.clientX>=t.left &&
+        e.clientX<=t.right &&
+        e.clientY>=t.top &&
+        e.clientY<=t.bottom;
+
+
+    flash();
+
+
+    if(hit){
+
+        hp-=50;
+
+        score+=25;
+
+        floatingText(
+            e.clientX,
+            e.clientY,
+            "+25 ⭐"
+        );
+
+        if(hp<=0){
+
+            score+=50;
+
+            coins++;
+
+            floatingText(
+                e.clientX,
+                e.clientY,
+                "🎯 +50 🪙"
+            );
+
+            level=
+                Math.min(
+                    10,
+                    Math.floor(score/200)+1
+                );
+
+            clearTimeout(targetTimer);
+
+            clearInterval(moveTimer);
+
+            setTimeout(
+                spawnTarget,
+                400
+            );
+
+        }
+
+        update();
+
+    }
+
+}
+
+
+function miss(){
+
+    score=Math.max(
+        0,
+        score-2
+    );
+
+    showMessage("MISS!");
+
+    update();
+
+}
+
+
+/* FLASH */
+
+function flash(){
+
+    const f=document
+        .getElementById("flash");
+
+    f.style.display="block";
+
+    setTimeout(()=>{
+        f.style.display="none";
+    },90);
+
+}
+
+
+/* FLOATING TEXT */
+
+function floatingText(x,y,text){
+
+    const game=document
+        .getElementById("game");
+
+    const f=document
+        .createElement("div");
+
+    f.className="float";
+
+    f.textContent=text;
+
+    const rect=
+        game.getBoundingClientRect();
+
+    f.style.left=
+        (x-rect.left)+"px";
+
+    f.style.top=
+        (y-rect.top)+"px";
+
+    game.appendChild(f);
+
+    setTimeout(()=>{
+        f.remove();
+    },1000);
+
+}
+
+
+/* MESSAGE */
+
+let messageTimer;
+
+function showMessage(text){
+
+    const m=
+        document.getElementById("message");
+
+    m.textContent=text;
+
+    m.style.display="block";
+
+    clearTimeout(messageTimer);
+
+    messageTimer=setTimeout(()=>{
+        m.style.display="none";
+    },700);
+
+}
+
+
+/* UPDATE */
+
+function update(){
+
+    document.getElementById("score")
+        .textContent=score;
+
+    document.getElementById("coins")
+        .textContent=coins;
+
+    document.getElementById("lives")
+        .textContent=lives;
+
+    document.getElementById("level")
+        .textContent=level;
+
+}
+
+
+/* GAME OVER */
+
+function gameOver(){
+
+    playing=false;
+
+    clearTimeout(targetTimer);
+
+    clearInterval(moveTimer);
+
+    document.getElementById("target")
+        .style.display="none";
+
+    document.getElementById("finalScore")
+        .textContent=score;
+
+    document.getElementById("finalLevel")
+        .textContent=level;
+
+    document.getElementById("finalCoins")
+        .textContent=coins;
+
+    document.getElementById("over")
+        .style.display="flex";
+
+}
+
+</script>
+
+</body>
+</html>
